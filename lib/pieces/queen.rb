@@ -3,7 +3,7 @@ require_relative '../piece'
 # Inherits from the Piece class.
 class Queen < Piece
   def symbol
-    Q
+    color == 'W' ? "\u2655" : "\u265B" # ♕ / ♛
   end
 
   # Checks if the move to the given coordinates (x, y) is valid.

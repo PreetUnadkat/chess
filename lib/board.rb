@@ -7,7 +7,7 @@ require_relative 'pieces/king'
 require_relative 'pieces/pawn'
 
 class Board
-  def initialize(variant = standard)
+  def initialize(variant = 'standard')
     @board = Array.new(8) { Array.new(8) }
     @variant = variant
     populate_board
@@ -26,17 +26,32 @@ class Board
 
     pieces.each_value do |(klass, positions)|
       positions.each do |pos|
-        @board[pos[0]][pos[1]] = klass.new
+        color = pos[0] < 2 ? 'B' : 'W'
+        @board[pos[0]][pos[1]] = klass.new(color, self, [pos[0], pos[1]])
       end
     end
   end
 
-  def print
-    @board.each do |row|
+  def render_board
+    puts "\n  a b c d e f g h"
+    @board.each_with_index do |row, i|
+      print "#{8 - i} " # Row numbers (from 8 to 1)
       row.each do |piece|
-        print piece
+        print piece.nil? ? '  ' : "#{piece} "
       end
       puts
     end
   end
+
+  def move_piece(start_pos, end_pos)
+    piece = @board[start_pos[0]][start_pos[1]]
+    @board[end_pos[0]][end_pos[1]] = piece
+    @board[start_pos[0]][start_pos[1]] = nil
+    piece.position = end_pos
+  end
 end
+
+board = Board.new
+board.render_board
+board.move_piece([1, 0], [0, 0])
+board.render_board

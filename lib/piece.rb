@@ -1,5 +1,5 @@
-# The Piece class represents a generic chess piece.
-# It is intended to be subclassed by specific types of chess pieces.
+# Generic chess piece.
+# To be subclassed by specific types of chess pieces.
 #
 # Attributes:
 #   @color [Symbol] the color of the piece (:white or :black)
@@ -20,6 +20,7 @@ class Piece
   attr_reader :color, :board
   attr_accessor :position
 
+  # postion in [x, y] format
   def initialize(color, board, position)
     @color = color
     @board = board
@@ -27,10 +28,10 @@ class Piece
   end
 
   def to_s
-    if @color == 'w'
-      "\e[97m#{@symbol}\e[0m" # White pieces (bright white text)
-    else
-      "\e[31m#{@symbol}\e[0m" # Black pieces (red text)
+    if @color == 'W'
+      "\e[97m#{symbol}\e[0m"
+    elsif @color == 'B'
+      "\e[31m#{symbol}\e[0m"
     end
   end
 

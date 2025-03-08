@@ -2,7 +2,7 @@ require_relative '../piece'
 # Inherits from the Piece class.
 class Pawn < Piece
   def symbol
-    P
+    color == 'W' ? "\u2659" : "\u265F" # ♙ / ♟  end
   end
 
   # Checks if the move to the given coordinates (x, y) is valid.

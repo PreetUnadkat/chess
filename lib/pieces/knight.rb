@@ -2,7 +2,7 @@ require_relative '../piece'
 # Inherits from the Piece class.
 class Knight < Piece
   def symbol
-    N
+    color == 'W' ? "\u2658" : "\u265E" # ♘ / ♞
   end
 
   # Checks if the move to the given coordinates (x, y) is valid.
