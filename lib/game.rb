@@ -12,7 +12,20 @@ class Game
 
   def play
     @players.each do |player|
-      player.play
+      base_cord = nil
+      loop do
+        base_cord = player.ask_base
+        break if possible_moves(base_cord) != []
+
+        puts 'Invalid move. Please try again.'
+      end
+      target_cord = nil
+      loop do
+        target_cord = player.ask_target(base_cord)
+        break if valid_base_cord?(target_cord)
+
+        puts 'Invalid move. Please try again.'
+      end
     end
   end
 

@@ -5,8 +5,12 @@ class Pawn < Piece
     color == 'W' ? "\u2659" : "\u265F" # ♙ / ♟  end
   end
 
-  # Checks if the move to the given coordinates (x, y) is valid.
-  def valid_move?(x, y)
-    # Check if the move is valid
+  def raw_valid_moves_and_captures
+    if @color == 'W'
+      [[2, 0], [1, 0]]
+    elsif @position[0] == 6
+      [[-2, 0], [-1, 0]]
+      [[1, 0]]
+    end
   end
 end

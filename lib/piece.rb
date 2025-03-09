@@ -39,16 +39,6 @@ class Piece
     raise NotImplementedError
   end
 
-  def valid_moves(raw_valid_moves)
-    raise NotImplementedError
-  end
-
-  def move_into_check?(end_pos)
-    dup_board = board.dup
-    dup_board.move_piece!(position, end_pos)
-    dup_board.in_check?(color)
-  end
-
   def symbol
     raise NotImplementedError
   end

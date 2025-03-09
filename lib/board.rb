@@ -5,6 +5,7 @@ require_relative 'pieces/rook'
 require_relative 'pieces/queen'
 require_relative 'pieces/king'
 require_relative 'pieces/pawn'
+require_relative 'pieces/nullpiece'
 
 class Board
   def initialize(variant = 'standard')
@@ -14,6 +15,11 @@ class Board
   end
 
   def populate_board
+    (0..7).each do |row|
+      (0..7).each do |col|
+        @board[row][col] = Nullpiece.new(nil, self, [row, col])
+      end
+    end
     # Adding only standard right now.
     pieces = {
       rook: [Rook, [[0, 0], [0, 7], [7, 0], [7, 7]]],
@@ -37,7 +43,7 @@ class Board
     @board.each_with_index do |row, i|
       print "#{8 - i} " # Row numbers (from 8 to 1)
       row.each do |piece|
-        print piece.nil? ? '  ' : "#{piece} "
+        print piece.is_a?(Nullpiece) ? '. ' : "#{piece} "
       end
       puts
     end
@@ -46,12 +52,14 @@ class Board
   def move_piece(start_pos, end_pos)
     piece = @board[start_pos[0]][start_pos[1]]
     @board[end_pos[0]][end_pos[1]] = piece
-    @board[start_pos[0]][start_pos[1]] = nil
+    @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)
     piece.position = end_pos
   end
 end
 
-board = Board.new
-board.render_board
-board.move_piece([1, 0], [0, 0])
-board.render_board
+# board = Board.new
+# board.render_board
+# board.move_piece([1, 0], [0, 0])
+
+# board.render_board
+# print board.instance_variable_get(:@board)[0][0]
