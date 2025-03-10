@@ -4,15 +4,21 @@ class Player
     @color = color
   end
 
+  attr_reader :color, :name
+
   def ask_base
     puts "#{@name}, enter your move (e.g., 'e2 e4'):"
     move = gets.chomp
-    [move[1].to_i, move[0].ord - 'a'.ord + 1]
+    # puts move[0]
+    # []
+    [8 - move[1].to_i, move[0].ord - 'a'.ord]
   end
 
-  def ask_target(base_cord)
-    puts "#{@name}, you want to move from #{(base_cord[0] + 96).char}#{base_cord[1]} to where?:"
+  def ask_target
     move = gets.chomp
-    [move[1].to_i, move[0].ord - 'a'.ord + 1]
+    [8 - move[1].to_i, move[0].ord - 'a'.ord]
   end
 end
+
+# player = Player.new('Alice', 'W')
+# puts player.ask_target.inspect

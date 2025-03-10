@@ -55,6 +55,13 @@ class Board
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)
     piece.position = end_pos
   end
+
+  def find_king(color)
+    @board.flatten.find { |piece| piece.is_a?(King) && piece.color == color }
+    # return [] if king_piece.nil?
+
+    # king_piece.position
+  end
 end
 
 # board = Board.new

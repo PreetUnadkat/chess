@@ -13,20 +13,28 @@ class MoveChecker
     @piece = piece
     @grid = boardo.instance_variable_get(:@board)
     @boardo = boardo
+    # @changer = @piece.color == 'B' ? -1 : 1
     # @cord IS [ROW, COL] I.E. [8, 0] IS A1
     @cord = @piece.position
   end
 
   def real_possible_moves
-    puts '1'
     raw = raw_possible_moves
-    puts '2'
-    checks = [check_knight] + [check_pawn] + [check_qrb]
-    puts '3'
-    puts check_knight.inspect
-    puts checks.inspect
-    # allowed_due_to_pins = pinned
-    # checks + [15_556]
+    pin = pinned
+    # puts pin.inspect
+    checks = [check_knight] + [check_pawn] + check_qrb + [pin]
+    puts raw_possible_moves.inspect
+    intersections = raw_possible_moves.dup # Start with all possible moves
+    for i in checks
+      # puts i.inspect
+      intersections &= i if i != []
+      # puts intersections.inspect
+
+      # puts i.inspect
+      # puts raw_possible_moves.inspect
+    end
+    intersections
+    # raw_possible_moves
   end
 
   def raw_possible_moves
@@ -47,9 +55,16 @@ class MoveChecker
     end
   end
 
+  def check
+    check_qrb + check_knight + check_pawn
+  end
+
   # should have done individually for bishop and rook but anyhow ig it will have to do!
   def check_qrb
-    king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
+    king_piece = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }
+    return [] if king_piece.nil?
+
+    king_cord = king_piece.position
     # puts king_cord.inspect
     # Attacker cord finding can be more optimized but i will do it later!
     attacker_cord = []
@@ -83,7 +98,10 @@ class MoveChecker
   end
 
   def check_knight
-    king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
+    king_piece = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }
+    return [] if king_piece.nil?
+
+    king_cord = king_piece.position
     attacker_cord = []
     # two knights can never attack so cord
     checker_cord = knight_moves(king_cord) # we will check if any of the rook or bishop or queen is attacking the king in these and then join attacker and king to get 1 of disjoint cords!
@@ -103,7 +121,10 @@ class MoveChecker
   end
 
   def check_pawn
-    king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
+    king_piece = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }
+    return [] if king_piece.nil?
+
+    king_cord = king_piece.position
     attacker_cord = []
     # two pawns can never attack so cord
     i = @grid[king_cord[0]][king_cord[1]].color == 'B' ? 1 : -1
@@ -137,13 +158,17 @@ class MoveChecker
     # dup_grid = @grid.map(&:dup)
     # dup_grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @boardo, @cord)
     # puts dup_grid[@cord[0]][@cord[1]].position
-    king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
+    king_piece = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }
+    return [] if king_piece.nil?
+
+    king_cord = king_piece.position
+
     # puts king_cord.inspect
     # Attacker cord finding can be more optimized but i will do it later!
     attacker_cord = []
     checker_cords = rook_moves(king_cord) + bishop_moves(king_cord) # we will check if any of the rook or bishop or queen is attacking the king
-    puts checker_cords.inspect
-    puts @cord.inspect
+    # puts checker_cords.inspect
+    # puts @cord.inspect
     unless checker_cords.include?(@cord)
       @grid[@cord[0]][@cord[1]] = selected_piece_sq
       return []
@@ -183,7 +208,8 @@ class MoveChecker
   def pawn_moves(cords)
     possible_moves = []
     if @piece.color == 'W'
-      if cords[1] > 0 && cords[0] < 7
+      if cords[1] > 0 && cords[1] < 7
+        # puts @grid[cords[0] - 1][cords[1] - 1]
         possible_moves << [cords[0] - 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'B'
         possible_moves << [cords[0] - 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] + 1].color == 'B'
       elsif cords[1] == 7
@@ -202,10 +228,23 @@ class MoveChecker
       end
 
     elsif @piece.color == 'B'
+      if cords[1] > 0 && cords[1] < 7
+        # puts @grid[cords[0] - 1][cords[1] - 1]
+        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
+        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] + 1].color == 'W'
+      elsif cords[1] == 7
+        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
+      elsif cords[1] == 0
+        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
+      end
+
       if cords[0] == 1
-        possible_moves = [[cords[0] + 1, cords[1]], [cords[0] + 2, cords[1]]]
-      elsif cords < 7
-        possible_moves = [[cords[0] + 1, cords[1]]]
+        possible_moves << [cords[0] + 1, cords[1]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
+        if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece) && @grid[cords[0] + 2][cords[1]].is_a?(Nullpiece)
+          possible_moves << [cords[0] + 2, cords[1]]
+        end
+      elsif cords[0] > 0
+        possible_moves << [[cords[0] + 1, cords[1]]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
       end
     end
     possible_moves
@@ -328,23 +367,39 @@ class MoveChecker
   #   puts king_cord.inspect
   # end
 end
+
 puts '====================='
-puts 'Final'
+puts 'PAWN MOVES'
 boardo = Board.new
 ok = boardo.instance_variable_get(:@board)
-checker = MoveChecker.new(boardo, ok[7][4])
-# puts checker.real_possible_moves
-# puts checker.pinned
-boardo.move_piece([7, 4], [5, 4])
-boardo.move_piece([0, 2], [2, 1])
-boardo.move_piece([7, 1], [4, 5])
-boardo.move_piece([0, 5], [2, 7])
-boardo.move_piece([0, 3], [2, 4])
-boardo.move_piece([0, 6], [3, 5])
-boardo.move_piece([1, 6], [4, 3])
-boardo.render_board
-checker2 = MoveChecker.new(boardo, ok[4][5])
-puts checker2.real_possible_moves.inspect
+checker = MoveChecker.new(boardo, ok[1][4])
+puts checker.real_possible_moves.inspect
+# # puts checker.pinned
+# boardo.move_piece([6, 6], [1, 6])
+# boardo.move_piece([0, 6], [6, 6])
+# boardo.render_board
+# checker2 = MoveChecker.new(boardo, ok[1][6])
+# # puts ok[0][0].class
+# puts checker2.real_possible_moves.inspect
+# puts '====================='
+
+# puts '====================='
+# puts 'Final'
+# boardo = Board.new
+# ok = boardo.instance_variable_get(:@board)
+# checker = MoveChecker.new(boardo, ok[7][4])
+# # puts checker.real_possible_moves
+# # puts checker.pinned
+# boardo.move_piece([7, 4], [5, 4])
+# # boardo.move_piece([0, 2], [2, 1])
+# boardo.move_piece([7, 3], [3, 4])
+# # boardo.move_piece([0, 5], [2, 7])
+# boardo.move_piece([0, 3], [2, 4])
+# # boardo.move_piece([0, 6], [3, 5])
+# # boardo.move_piece([1, 6], [4, 3])
+# boardo.render_board
+# checker2 = MoveChecker.new(boardo, ok[1][5])
+# puts checker2.real_possible_moves.inspect
 # puts checker2.check_qrb.inspect
 # puts checker2.check_knight.inspect
 # puts checker2.check_pawn.inspect
