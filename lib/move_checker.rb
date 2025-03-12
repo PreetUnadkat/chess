@@ -18,12 +18,16 @@ class MoveChecker
     @cord = @piece.position
   end
 
-  def real_possible_moves
+  def real_possible_moves(color)
+    return [] if @piece.is_a?(Nullpiece)
+    return [] if @piece.color != color
+    return selected_king_moves if @piece.is_a?(King)
+
     raw = raw_possible_moves
     pin = pinned
     # puts pin.inspect
     checks = [check_knight] + [check_pawn] + check_qrb + [pin]
-    puts raw_possible_moves.inspect
+    # puts raw_possible_moves.inspect
     intersections = raw_possible_moves.dup # Start with all possible moves
     for i in checks
       # puts i.inspect
@@ -203,6 +207,19 @@ class MoveChecker
 
   private
 
+  def selected_king_moves
+    checks = [check_knight] + [check_pawn] + check_qrb
+    intersections = raw_possible_moves.dup # Start with all possible moves
+    for i in checks
+      intersections &= i if i != []
+    end
+    intersections
+  end
+
+  def castling
+    [] if @piece.castling_privilege
+  end
+
   # assuming pawn is not promoted yet
   # ADD PROMOTION LATER
   def pawn_moves(cords)
@@ -210,8 +227,10 @@ class MoveChecker
     if @piece.color == 'W'
       if cords[1] > 0 && cords[1] < 7
         # puts @grid[cords[0] - 1][cords[1] - 1]
+
         possible_moves << [cords[0] - 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'B'
         possible_moves << [cords[0] - 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] + 1].color == 'B'
+        puts 'tralala213', possible_moves.inspect
       elsif cords[1] == 7
         possible_moves << [cords[0] - 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'B'
       elsif cords[1] == 0
@@ -224,18 +243,18 @@ class MoveChecker
           possible_moves << [cords[0] - 2, cords[1]]
         end
       elsif cords[0] > 0
-        possible_moves << [[cords[0] - 1, cords[1]]] if @grid[cords[0] - 1][cords[1]].is_a?(Nullpiece)
+        possible_moves << [cords[0] - 1, cords[1]] if @grid[cords[0] - 1][cords[1]].is_a?(Nullpiece)
       end
 
     elsif @piece.color == 'B'
       if cords[1] > 0 && cords[1] < 7
         # puts @grid[cords[0] - 1][cords[1] - 1]
-        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
-        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] + 1].color == 'W'
+        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] + 1][cords[1] - 1].color == 'W'
+        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] + 1][cords[1] + 1].color == 'W'
       elsif cords[1] == 7
-        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
+        possible_moves << [cords[0] + 1, cords[1] - 1] if @grid[cords[0] + 1][cords[1] - 1].color == 'W'
       elsif cords[1] == 0
-        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'W'
+        possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] + 1][cords[1] - 1].color == 'W'
       end
 
       if cords[0] == 1
@@ -244,7 +263,7 @@ class MoveChecker
           possible_moves << [cords[0] + 2, cords[1]]
         end
       elsif cords[0] > 0
-        possible_moves << [[cords[0] + 1, cords[1]]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
+        possible_moves << [cords[0] + 1, cords[1]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
       end
     end
     possible_moves
@@ -368,17 +387,18 @@ class MoveChecker
   # end
 end
 
-puts '====================='
-puts 'PAWN MOVES'
-boardo = Board.new
-ok = boardo.instance_variable_get(:@board)
-checker = MoveChecker.new(boardo, ok[1][4])
-puts checker.real_possible_moves.inspect
+# puts '====================='
+# puts 'PAWN MOVES'
+# boardo = Board.new
+# ok = boardo.instance_variable_get(:@board)
+# checker = MoveChecker.new(boardo, ok[1][4])
+# puts checker.real_possible_moves.inspect
 # # puts checker.pinned
-# boardo.move_piece([6, 6], [1, 6])
-# boardo.move_piece([0, 6], [6, 6])
+# boardo.move_piece([6, 4], [4, 4])
+# boardo.move_piece([1, 3], [3, 3])
+# # boardo.move_piece([1, 3], [3, 3])
 # boardo.render_board
-# checker2 = MoveChecker.new(boardo, ok[1][6])
+# checker2 = MoveChecker.new(boardo, ok[4][4])
 # # puts ok[0][0].class
 # puts checker2.real_possible_moves.inspect
 # puts '====================='

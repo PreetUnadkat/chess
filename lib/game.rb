@@ -22,19 +22,26 @@ class Game
         loop do
           base_cord = player.ask_base
           checker = MoveChecker.new(@boardo, @grid[base_cord[0]][base_cord[1]])
-          @options = checker.real_possible_moves
+          @options = checker.real_possible_moves(player.color)
+          # puts @options.inspect, 'YOLOLOLO26'
           break if @options != []
 
           puts 'Invalid move. Please try again.'
         end
-        winner = check_mate
-        if winner
-          puts "The winner is #{winner}"
-          break
-        end
+        # winner = check_mate
+        # if winner
+        # puts "The winner is #{winner}"
+        # break
+        # end
         loop do
           puts 'Options:'
-          @options.each { |option| puts "#{(option[1] + 96 + 1).chr}#{8 - option[0]}" }
+          # puts
+          puts @options.inspect, 'YOLOLOLO26'
+          puts @options[1].inspect, 'YOLOLOLO26'
+          @options.each { |option| puts "#{option[1]}" }
+          @options.each { |option| puts "#{(option[1] + 96 + 1).chr}#{8 - option[0]},'hi'" }
+          @boardo.display_possible_moves(@options)
+
           target_cord = player.ask_target
           break if @options.include?(target_cord)
 
@@ -42,11 +49,11 @@ class Game
         end
         @boardo.move_piece(base_cord, target_cord)
       end
-      winner = check_mate
-      if winner
-        puts "The winner is #{winner}"
-        break
-      end
+      # winner = check_mate
+      # if winner
+      #   puts "The winner is #{winner}"
+      #   break
+      # end
     end
   end
 
@@ -69,8 +76,21 @@ class Game
     false
   end
 end
-board = Board.new
-game = Game.new(board)
+# board = Board.new
+# game = Game.new(board)
 # board.render_board
-game.setup_players
+# game.setup_players
+# game.play
+
+puts '=========================================='
+puts 'Direct play'
+board = Board.new
+# board.move_piece([6, 4], [4, 4])
+# board.move_piece([1, 3], [3, 3])
+# board.move_piece([0, 3], [3, 4])
+
+# board.move_piece([6, 3], [4, 3])
+game = Game.new(board)
+game.add_player(Player.new('Alice', 'W'))
+game.add_player(Player.new('Bob', 'B'))
 game.play
