@@ -36,8 +36,8 @@ class Game
         loop do
           puts 'Options:'
           # puts
-          puts @options.inspect, 'YOLOLOLO26'
-          puts @options[1].inspect, 'YOLOLOLO26'
+          # puts @options.inspect, 'YOLOLOLO26'
+          # puts @options[1].inspect, 'YOLOLOLO26'
           @options.each { |option| puts "#{option[1]}" }
           @options.each { |option| puts "#{(option[1] + 96 + 1).chr}#{8 - option[0]},'hi'" }
           @boardo.display_possible_moves(@options)
@@ -88,7 +88,16 @@ board = Board.new
 # board.move_piece([6, 4], [4, 4])
 # board.move_piece([1, 3], [3, 3])
 # board.move_piece([0, 3], [3, 4])
-
+board.move_piece([6, 3], [1, 4])
+board.move_piece([7, 4], [5, 4])
+board.move_piece([6, 4], [1, 4])
+board.move_piece([1, 4], [3, 4])
+board.move_piece([0, 3], [3, 4])
+board.move_piece([1, 3], [3, 3])
+board.move_piece([1, 2], [4, 5])
+board.move_piece([6, 7], [5, 6])
+board.move_piece([6, 2], [4, 2])
+board.move_piece([0, 4], [3, 4])
 # board.move_piece([6, 3], [4, 3])
 game = Game.new(board)
 game.add_player(Player.new('Alice', 'W'))

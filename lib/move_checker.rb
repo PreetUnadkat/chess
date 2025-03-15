@@ -28,6 +28,8 @@ class MoveChecker
     # puts pin.inspect
     checks = [check_knight] + [check_pawn] + check_qrb + [pin]
     # puts raw_possible_moves.inspect
+    # puts checks.inspect, '31'
+    # puts raw.inspect, '32'
     intersections = raw_possible_moves.dup # Start with all possible moves
     for i in checks
       # puts i.inspect
@@ -61,6 +63,7 @@ class MoveChecker
 
   def check
     check_qrb + check_knight + check_pawn
+    # puts check_pawn, '64'
   end
 
   # should have done individually for bishop and rook but anyhow ig it will have to do!
@@ -134,7 +137,7 @@ class MoveChecker
     i = @grid[king_cord[0]][king_cord[1]].color == 'B' ? 1 : -1
     x = king_cord[0]
     y = king_cord[1]
-    lis = [[x + i, y - 1], [x + i, y + 1], [x + 2 * i, y - 1], [x + 2 * i, y + 1]]
+    lis = [[x + i, y - 1], [x + i, y + 1]] # DELETED THIS , [x + 2 * i, y - 1], [x + 2 * i, y + 1]
     for goo in lis
       attacker_cord << goo if goo[0] >= 0 and goo[0] < 8 and goo[1] >= 0 and goo[1] < 8
     end
@@ -208,12 +211,33 @@ class MoveChecker
   private
 
   def selected_king_moves
-    checks = [check_knight] + [check_pawn] + check_qrb
-    intersections = raw_possible_moves.dup # Start with all possible moves
-    for i in checks
-      intersections &= i if i != []
+    raw = raw_possible_moves + [@cord]
+    # puts raw.inspect, 'selected_king_moves'
+    anso = []
+    # puts raw.inspect, 'selected_king_moves'
+    for possible_move in raw
+      new_board = Marshal.load(Marshal.dump(@boardo)) # Deep copy to prevent modification issues
+      new_board.move_piece(@cord, possible_move)
+      # new_board.render_board
+
+      new_grid = new_board.instance_variable_get(:@board)
+      # new_board.render_board
+      # puts @grid.flatten.length, '221'
+      for piecee in new_grid.flatten
+
+        flag = 0
+        next unless piecee.color != @piece.color && !piecee.is_a?(Nullpiece)
+
+        # puts MoveChecker.new(@boardo, piecee).raw_possible_moves.inspect, '220'
+        if MoveChecker.new(new_board, piecee).raw_possible_moves.include?(possible_move)
+          flag = 1
+          break
+        end
+      end
+      anso << possible_move if flag == 0
+      # puts anso.inspect, '225'
     end
-    intersections
+    anso - [@cord]
   end
 
   def castling
@@ -230,7 +254,7 @@ class MoveChecker
 
         possible_moves << [cords[0] - 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'B'
         possible_moves << [cords[0] - 1, cords[1] + 1] if @grid[cords[0] - 1][cords[1] + 1].color == 'B'
-        puts 'tralala213', possible_moves.inspect
+        # puts 'tralala213', possible_moves.inspect
       elsif cords[1] == 7
         possible_moves << [cords[0] - 1, cords[1] - 1] if @grid[cords[0] - 1][cords[1] - 1].color == 'B'
       elsif cords[1] == 0
@@ -245,7 +269,7 @@ class MoveChecker
       elsif cords[0] > 0
         possible_moves << [cords[0] - 1, cords[1]] if @grid[cords[0] - 1][cords[1]].is_a?(Nullpiece)
       end
-
+    # puts
     elsif @piece.color == 'B'
       if cords[1] > 0 && cords[1] < 7
         # puts @grid[cords[0] - 1][cords[1] - 1]
@@ -266,6 +290,7 @@ class MoveChecker
         possible_moves << [cords[0] + 1, cords[1]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
       end
     end
+    # puts possible_moves.inspect, '273'
     possible_moves
   end
 
@@ -375,6 +400,7 @@ class MoveChecker
 
       possible_moves << [cords[0] + up, cords[1] + right]
     end
+    # puts possible_moves.inspect, '378'
     possible_moves
   end
 
@@ -388,19 +414,26 @@ class MoveChecker
 end
 
 # puts '====================='
-# puts 'PAWN MOVES'
-# boardo = Board.new
-# ok = boardo.instance_variable_get(:@board)
-# checker = MoveChecker.new(boardo, ok[1][4])
-# puts checker.real_possible_moves.inspect
+# puts 'BUG'
+# board = Board.new
+# ok = board.instance_variable_get(:@board)
+# # checker = MoveChecker.new(boardo, ok[1][4])
+# # puts checker.real_possible_moves.inspect
 # # puts checker.pinned
-# boardo.move_piece([6, 4], [4, 4])
-# boardo.move_piece([1, 3], [3, 3])
-# # boardo.move_piece([1, 3], [3, 3])
-# boardo.render_board
-# checker2 = MoveChecker.new(boardo, ok[4][4])
+# board.move_piece([6, 3], [1, 4])
+# board.move_piece([7, 4], [5, 4])
+# board.move_piece([6, 4], [4, 4])
+# board.move_piece([1, 4], [3, 4])
+# board.move_piece([0, 3], [3, 4])
+# board.move_piece([1, 3], [3, 3])
+# board.move_piece([1, 2], [4, 5])
+# board.move_piece([6, 7], [5, 6])
+# board.move_piece([6, 2], [4, 2])
+# board.render_board
+# checker2 = MoveChecker.new(board, ok[5][4])
 # # puts ok[0][0].class
-# puts checker2.real_possible_moves.inspect
+# puts checker2.real_possible_moves('W').inspect
+# board.render_board
 # puts '====================='
 
 # puts '====================='
