@@ -28,11 +28,11 @@ class Game
 
           puts 'Invalid move. Please try again.'
         end
-        # winner = check_mate
-        # if winner
-        # puts "The winner is #{winner}"
-        # break
-        # end
+        loser = check_mate
+        if loser
+          puts "The lowser is #{loser}"
+          break
+        end
         loop do
           puts 'Options:'
           # puts
@@ -49,11 +49,13 @@ class Game
         end
         @boardo.move_piece(base_cord, target_cord)
       end
-      # winner = check_mate
-      # if winner
-      #   puts "The winner is #{winner}"
-      #   break
-      # end
+      loser = check_mate
+      next unless loser
+
+      puts "The lowser is #{loser}"
+      @boardo.render_board
+
+      break
     end
   end
 
@@ -70,8 +72,7 @@ class Game
     @players.each do |player|
       king = @boardo.find_king(player.color)
       checker = MoveChecker.new(@boardo, king)
-
-      return player.name if checker.real_possible_moves == [] && (checker.check != [])
+      return player.name if checker.check_mate
     end
     false
   end
@@ -85,20 +86,10 @@ end
 puts '=========================================='
 puts 'Direct play'
 board = Board.new
-# board.move_piece([6, 4], [4, 4])
-# board.move_piece([1, 3], [3, 3])
-# board.move_piece([0, 3], [3, 4])
-board.move_piece([6, 3], [1, 4])
-board.move_piece([7, 4], [5, 4])
-board.move_piece([6, 4], [1, 4])
-board.move_piece([1, 4], [3, 4])
-board.move_piece([0, 3], [3, 4])
-board.move_piece([1, 3], [3, 3])
-board.move_piece([1, 2], [4, 5])
-board.move_piece([6, 7], [5, 6])
-board.move_piece([6, 2], [4, 2])
-board.move_piece([0, 4], [3, 4])
-# board.move_piece([6, 3], [4, 3])
+board.move_piece([0, 3], [4, 4])
+board.move_piece([6, 4], [0, 3])
+board.move_piece([0, 1], [5, 4])
+
 game = Game.new(board)
 game.add_player(Player.new('Alice', 'W'))
 game.add_player(Player.new('Bob', 'B'))

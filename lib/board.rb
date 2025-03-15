@@ -56,10 +56,13 @@ class Board
     end
     if piece.is_a?(Rook)
       if [[0, 0], [7, 0]].include?(start_pos)
-        piece.revoke_castling_privilege('left')
+        piece.revoke_castling_privilege
       elsif [[0, 7], [7, 7]].include?(start_pos)
-        piece.revoke_castling_privilege('right')
+        piece.revoke_castling_privilege
       end
+    end
+    if piece.is_a?(Pawn) && ((piece.color == 'W' && end_pos[0] == 0) or (piece.color == 'B' && end_pos[0] == 7))
+      piece = piece.promote
     end
     @board[end_pos[0]][end_pos[1]] = piece
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)

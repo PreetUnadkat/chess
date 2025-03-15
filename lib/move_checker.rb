@@ -208,15 +208,19 @@ class MoveChecker
   # if yes we will then take intersection of that line and our possible moves
   # further i will check if the king is attacked by knight or pawn if so i will force to capture that piece
 
+  def check_mate
+    selected_king_moves(true).empty? ? @piece.color : false
+  end
+
   private
 
-  def selected_king_moves
+  def selected_king_moves(want_to_check_for_checkmate = false)
     raw = raw_possible_moves + [@cord]
     # puts raw.inspect, 'selected_king_moves'
     anso = []
     # puts raw.inspect, 'selected_king_moves'
     for possible_move in raw
-      new_board = Marshal.load(Marshal.dump(@boardo)) # Deep copy to prevent modification issues
+      new_board = Marshal.load(Marshal.dump(@boardo)) # This marshall dupe is 7000 TIMES SLOWER than normal dupe (which wont work here obv)
       new_board.move_piece(@cord, possible_move)
       # new_board.render_board
 
@@ -237,7 +241,11 @@ class MoveChecker
       anso << possible_move if flag == 0
       # puts anso.inspect, '225'
     end
-    anso - [@cord]
+    # puts raw[-1].inspect, @cord.inspect, '227'
+    # @boardo.move_piece(raw[-2], @cord)
+    # puts @boardo.render_board
+    anso -= [@cord] unless want_to_check_for_checkmate
+    anso
   end
 
   def castling
@@ -319,6 +327,7 @@ class MoveChecker
       end
     end
     # moves along rank!
+
     (1..2).each do |j|
       (1..7).each do |i|
         i = -i if j == 2
