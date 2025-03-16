@@ -39,11 +39,7 @@ class MoveChecker
       # puts i.inspect
       # puts raw_possible_moves.inspect
     end
-    if @piece.is_a?(Rook)
-      puts 'Castling inc'
-      puts raw_castling.inspect
-    end
-    puts 'kokoko'
+
     intersections
     # raw_possible_moves
   end
@@ -66,9 +62,14 @@ class MoveChecker
     end
   end
 
-  def check
-    check_qrb + check_knight + check_pawn
-    # puts check_pawn, '64'
+  # which color is in check
+  def check(color = @piece.color)
+    king_piece = @boardo.find_king(@piece.color)
+    @grid.flatten.each do |piecee|
+      next if piecee.color != king_piece.color || piecee.is_a?(Nullpiece) || piecee.is_a?(King)
+      return true if MoveChecker.new(@boardo, piecee).real_possible_moves(@piece.color).include?(king_piece.position)
+    end
+    false
   end
 
   # should have done individually for bishop and rook but anyhow ig it will have to do!
@@ -209,6 +210,7 @@ class MoveChecker
 
     path + [attacker_cord]
   end
+
   # we will find all lines through our king and check if any of the rook, bishop or queen is on that line
   # if yes we will then take intersection of that line and our possible moves
   # further i will check if the king is attacked by knight or pawn if so i will force to capture that piece
@@ -216,11 +218,7 @@ class MoveChecker
   def check_mate
     return false if selected_king_moves(true) != []
 
-    for piecee in @grid.flatten
-      next if piecee.color != @piece.color || piecee.is_a?(Nullpiece) || piecee.is_a?(King)
-      return false if MoveChecker.new(@boardo, piecee).real_possible_moves(@piece.color) != []
-    end
-    true
+    check
   end
 
   private
@@ -257,19 +255,26 @@ class MoveChecker
     # puts @boardo.render_board
     anso -= [@cord] unless want_to_check_for_checkmate
     # puts anso.inspect, '249'
+    # puts 'Castling inc'
+    castling = real_castling(raw_castling)
+    # puts castling.inspect, 'castling asfasf'
+    # puts 'kokoko'
+    anso += castling if castling != []
     anso
   end
 
   def real_castling(moves)
     anso = [] # Initialize anso array to store valid castling moves
-
+    # puts moves
     moves.each do |move|
       passes = 0
-      in_betweens = [move, [[move[0], (move[1] + @cord[1]) / 2]]] # Intermediate squares
-
+      # puts move.inspect, 'move', @cord.inspect, 'cord'
+      in_betweens = [move, [move[0], (move[1] + @cord[1]) / 2]] # Intermediate squares
+      # puts in_betweens.inspect, 'inbetween'
       in_betweens.each do |in_between|
         new_board = Marshal.load(Marshal.dump(@boardo)) # Deep copy of board
         new_grid = new_board.instance_variable_get(:@board)
+        # puts 'heehee', @cord.inspect, in_between.inspect, 'castling', 'hello!'
         if in_between[1] > @cord[1] # King side castling
           new_board.move_piece([@cord[0], 7], [move[0], 5]) # Move rook
         else # Queen side castling
@@ -293,24 +298,33 @@ class MoveChecker
     anso
   end
 
+  # below check if nothign is in between!
   def raw_castling
     anso = []
-    puts @piece.castling_privilege_left, @piece.castling_privilege_right, 'castling_privileges'
-    return anso if !@piece.castling_privilege_left && !@piece.castling_privilege_right
+    # puts @piece.castling_privilege
+    puts check, 'castling303'
+    return anso if check
+    return anso unless @piece.castling_privilege
 
     possible_rooks = [[0, 0], [0, 7], [7, 7], [7, 0]] # Fixed bracket issue
     possible_rooks.each do |possible_rook|
       target_rook_piece = @grid[possible_rook[0]][possible_rook[1]]
+      next unless target_rook_piece.is_a?(Rook)
 
-      next unless target_rook_piece.is_a?(Rook) && target_rook_piece.castling_privilege && (MoveChecker.new(@boardo,
-                                                                                                            target_rook_piece).raw_possible_moves.include?([
-                                                                                                                                                             @piece.position[0] + 1, @piece.position[1]
-                                                                                                                                                           ]) ||
-           MoveChecker.new(@boardo,
-                           target_rook_piece).raw_possible_moves.include?([@piece.position[0] - 1, @piece.position[1]]))
+      cond2 = target_rook_piece.castling_privilege
+      cond3 = MoveChecker.new(@boardo,
+                              target_rook_piece).raw_possible_moves.include?([@piece.position[0],
+                                                                              @piece.position[1] + 1])
+      cond4 = MoveChecker.new(@boardo,
+                              target_rook_piece).raw_possible_moves.include?([@piece.position[0],
+                                                                              @piece.position[1] - 1])
+      # puts cond3, 'castling307'
 
-      anso << [(@piece.position[0] + possible_rook[0]) / 2, @piece.position[1]] # Fixed division
+      next unless cond2 && (cond3 || cond4)
+
+      anso << [@piece.position[0], (@piece.position[1] + possible_rook[1] + 1) / 2]
     end
+    puts anso.inspect, 'castling325'
     anso
     # real_castling(anso)
   end
@@ -351,7 +365,6 @@ class MoveChecker
       elsif cords[1] == 0
         possible_moves << [cords[0] + 1, cords[1] + 1] if @grid[cords[0] + 1][cords[1] - 1].color == 'W'
       end
-
       if cords[0] == 1
         possible_moves << [cords[0] + 1, cords[1]] if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece)
         if @grid[cords[0] + 1][cords[1]].is_a?(Nullpiece) && @grid[cords[0] + 2][cords[1]].is_a?(Nullpiece)
@@ -494,13 +507,11 @@ ok = board.instance_variable_get(:@board)
 # puts checker.pinned
 board.move_piece([7, 5], [5, 5])
 board.move_piece([7, 6], [5, 6])
-# board.move_piece([6, 4], [4, 4])
-# board.move_piece([1, 4], [3, 4])
-# board.move_piece([0, 3], [3, 4])
-# board.move_piece([1, 3], [3, 3])
-# board.move_piece([1, 2], [4, 5])
-# board.move_piece([6, 7], [5, 6])
-# board.move_piece([6, 2], [4, 2])
+board.move_piece([7, 1], [5, 1])
+board.move_piece([7, 2], [5, 2])
+
+board.move_piece([7, 3], [5, 3])
+board.move_piece([0, 1], [6, 3])
 board.render_board
 checker2 = MoveChecker.new(board, ok[7][4])
 # puts ok[0][0].class

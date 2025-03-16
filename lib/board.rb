@@ -48,9 +48,9 @@ class Board
     end
   end
 
-  def rook_move_castle
-    king = find_king(piece.color)
-    i = piece.color == 'W' ? 1 : -1
+  def rook_move_castle(color, end_pos)
+    king = find_king(color)
+    i = color == 'W' ? 1 : -1
     if end_pos == [king.position[0], king.position[1] + 2 * i]
       rook_start_pos = [king.position[0], king.position[1] + 3 * i]
       rook_end_pos = [king.position[0], king.position[1] + i]
@@ -71,7 +71,7 @@ class Board
     if piece.is_a?(Pawn) && ((piece.color == 'W' && end_pos[0] == 0) or (piece.color == 'B' && end_pos[0] == 7))
       piece = piece.promote
     end
-    rook_move_castle if (end_pos[1] - start_pos[1]).abs == 2 and piece.is_a?(King)
+    rook_move_castle(piece.color, end_pos) if (end_pos[1] - start_pos[1]).abs == 2 and piece.is_a?(King)
     @board[end_pos[0]][end_pos[1]] = piece
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)
     piece.position = end_pos

@@ -1,6 +1,8 @@
 require_relative '../piece'
 # Inherits from the Piece class.
 class Rook < Piece
+  attr_reader :castling_privilege
+
   def initialize(color, board, position)
     super
     @castling_privilege = true
