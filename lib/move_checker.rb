@@ -39,6 +39,11 @@ class MoveChecker
       # puts i.inspect
       # puts raw_possible_moves.inspect
     end
+    if @piece.is_a?(Rook)
+      puts 'Castling inc'
+      puts raw_castling.inspect
+    end
+    puts 'kokoko'
     intersections
     # raw_possible_moves
   end
@@ -209,7 +214,13 @@ class MoveChecker
   # further i will check if the king is attacked by knight or pawn if so i will force to capture that piece
 
   def check_mate
-    selected_king_moves(true).empty? ? @piece.color : false
+    return false if selected_king_moves(true) != []
+
+    for piecee in @grid.flatten
+      next if piecee.color != @piece.color || piecee.is_a?(Nullpiece) || piecee.is_a?(King)
+      return false if MoveChecker.new(@boardo, piecee).real_possible_moves(@piece.color) != []
+    end
+    true
   end
 
   private
@@ -245,11 +256,63 @@ class MoveChecker
     # @boardo.move_piece(raw[-2], @cord)
     # puts @boardo.render_board
     anso -= [@cord] unless want_to_check_for_checkmate
+    # puts anso.inspect, '249'
     anso
   end
 
-  def castling
-    [] if @piece.castling_privilege
+  def real_castling(moves)
+    anso = [] # Initialize anso array to store valid castling moves
+
+    moves.each do |move|
+      passes = 0
+      in_betweens = [move, [[move[0], (move[1] + @cord[1]) / 2]]] # Intermediate squares
+
+      in_betweens.each do |in_between|
+        new_board = Marshal.load(Marshal.dump(@boardo)) # Deep copy of board
+        new_grid = new_board.instance_variable_get(:@board)
+        if in_between[1] > @cord[1] # King side castling
+          new_board.move_piece([@cord[0], 7], [move[0], 5]) # Move rook
+        else # Queen side castling
+          new_board.move_piece([@cord[0], 0], [move[0], 3]) # Move rook
+        end
+        new_board.move_piece(@cord, in_between) # Simulate move
+        # Check if any opponent piece attacks the in_between position
+        flag = 0
+        new_grid.flatten.each do |piecee|
+          next if piecee.color == @piece.color || piecee.is_a?(Nullpiece)
+
+          if MoveChecker.new(new_board, piecee).raw_possible_moves.include?(in_between)
+            flag = 1
+            break
+          end
+        end
+        passes += 1 if flag == 0 # Only add if not attacked
+      end
+      anso << move if passes == 2
+    end
+    anso
+  end
+
+  def raw_castling
+    anso = []
+    puts @piece.castling_privilege_left, @piece.castling_privilege_right, 'castling_privileges'
+    return anso if !@piece.castling_privilege_left && !@piece.castling_privilege_right
+
+    possible_rooks = [[0, 0], [0, 7], [7, 7], [7, 0]] # Fixed bracket issue
+    possible_rooks.each do |possible_rook|
+      target_rook_piece = @grid[possible_rook[0]][possible_rook[1]]
+
+      next unless target_rook_piece.is_a?(Rook) && target_rook_piece.castling_privilege && (MoveChecker.new(@boardo,
+                                                                                                            target_rook_piece).raw_possible_moves.include?([
+                                                                                                                                                             @piece.position[0] + 1, @piece.position[1]
+                                                                                                                                                           ]) ||
+           MoveChecker.new(@boardo,
+                           target_rook_piece).raw_possible_moves.include?([@piece.position[0] - 1, @piece.position[1]]))
+
+      anso << [(@piece.position[0] + possible_rook[0]) / 2, @piece.position[1]] # Fixed division
+    end
+    anso
+    # real_castling(anso)
   end
 
   # assuming pawn is not promoted yet
@@ -421,6 +484,29 @@ class MoveChecker
   #   puts king_cord.inspect
   # end
 end
+
+puts '====================='
+puts 'castling'
+board = Board.new
+ok = board.instance_variable_get(:@board)
+# checker = MoveChecker.new(boardo, ok[1][4])
+# puts checker.real_possible_moves.inspect
+# puts checker.pinned
+board.move_piece([7, 5], [5, 5])
+board.move_piece([7, 6], [5, 6])
+# board.move_piece([6, 4], [4, 4])
+# board.move_piece([1, 4], [3, 4])
+# board.move_piece([0, 3], [3, 4])
+# board.move_piece([1, 3], [3, 3])
+# board.move_piece([1, 2], [4, 5])
+# board.move_piece([6, 7], [5, 6])
+# board.move_piece([6, 2], [4, 2])
+board.render_board
+checker2 = MoveChecker.new(board, ok[7][4])
+# puts ok[0][0].class
+puts checker2.real_possible_moves('W').inspect
+# board.render_board
+puts '====================='
 
 # puts '====================='
 # puts 'BUG'

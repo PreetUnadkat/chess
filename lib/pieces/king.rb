@@ -3,12 +3,12 @@ require_relative '../piece'
 class King < Piece
   def initialize(color, board, position)
     super
-    @castling_privilege_right = true
-    @castling_privilege_left = true
+    @castling_privilege = true
+    # @castling_privilege_left = true
   end
 
-  def revoke_castling_privilege(side)
-    instance_variable_set("@castling_privilege_#{side}", false)
+  def revoke_castling_privilege
+    @castling_privilege = false
   end
 
   def symbol

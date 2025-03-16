@@ -15,6 +15,8 @@ class Game
 
   def play
     while true
+      break if check_mate
+
       @players.each do |player|
         base_cord = nil
         target_cord = nil
@@ -28,11 +30,11 @@ class Game
 
           puts 'Invalid move. Please try again.'
         end
-        loser = check_mate
-        if loser
-          puts "The lowser is #{loser}"
-          break
-        end
+        # loser = check_mate
+        # if loser
+        #   puts "The lowser is #{loser}"
+        #   break
+        # end
         loop do
           puts 'Options:'
           # puts
@@ -54,7 +56,6 @@ class Game
 
       puts "The lowser is #{loser}"
       @boardo.render_board
-
       break
     end
   end
@@ -86,9 +87,11 @@ end
 puts '=========================================='
 puts 'Direct play'
 board = Board.new
-board.move_piece([0, 3], [4, 4])
-board.move_piece([6, 4], [0, 3])
-board.move_piece([0, 1], [5, 4])
+
+board.move_piece([7, 6], [5, 6])
+board.move_piece([7, 5], [5, 5])
+# board.move_piece([0, 3], [4, 4])
+# board.move_piece([0, 3], [4, 4])
 
 game = Game.new(board)
 game.add_player(Player.new('Alice', 'W'))

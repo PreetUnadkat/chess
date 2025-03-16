@@ -48,22 +48,30 @@ class Board
     end
   end
 
+  def rook_move_castle
+    king = find_king(piece.color)
+    i = piece.color == 'W' ? 1 : -1
+    if end_pos == [king.position[0], king.position[1] + 2 * i]
+      rook_start_pos = [king.position[0], king.position[1] + 3 * i]
+      rook_end_pos = [king.position[0], king.position[1] + i]
+    elsif end_pos == [king.position[0], king.position[1] - 2 * i]
+      rook_start_pos = [king.position[0], king.position[1] - 4 * i]
+      rook_end_pos = [king.position[0], king.position[1] - i]
+    end
+    rook = @board[rook_start_pos[0]][rook_start_pos[1]]
+    @board[rook_end_pos[0]][rook_end_pos[1]] = rook
+    @board[rook_start_pos[0]][rook_start_pos[1]] = Nullpiece.new(nil, self, rook_start_pos)
+    rook.position = rook_end_pos
+  end
+
   def move_piece(start_pos, end_pos)
     piece = @board[start_pos[0]][start_pos[1]]
-    if piece.is_a?(King)
-      piece.revoke_castling_privilege('left')
-      piece.revoke_castling_privilege('right')
-    end
-    if piece.is_a?(Rook)
-      if [[0, 0], [7, 0]].include?(start_pos)
-        piece.revoke_castling_privilege
-      elsif [[0, 7], [7, 7]].include?(start_pos)
-        piece.revoke_castling_privilege
-      end
-    end
+    piece.revoke_castling_privilege if piece.is_a?(King)
+    piece.revoke_castling_privilege if piece.is_a?(Rook) && [[0, 0], [7, 0], [0, 7], [7, 7]].include?(start_pos)
     if piece.is_a?(Pawn) && ((piece.color == 'W' && end_pos[0] == 0) or (piece.color == 'B' && end_pos[0] == 7))
       piece = piece.promote
     end
+    rook_move_castle if (end_pos[1] - start_pos[1]).abs == 2 and piece.is_a?(King)
     @board[end_pos[0]][end_pos[1]] = piece
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)
     piece.position = end_pos
