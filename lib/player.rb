@@ -18,7 +18,7 @@ class Player
   end
 
   def ask_target
-    puts 're to select another piece!'
+    puts 're to select another piece'
     puts "Press 's' to save and quit, 'q' to simply quit, 'l' to load , 'u' to undo"
     move = gets.chomp
     return move if %w[s q l u re].include?(move)

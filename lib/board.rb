@@ -8,6 +8,8 @@ require_relative 'pieces/pawn'
 require_relative 'pieces/nullpiece'
 
 class Board
+  attr_accessor :board
+
   def initialize(variant = 'standard')
     @board = Array.new(8) { Array.new(8) }
     @variant = variant
@@ -81,6 +83,39 @@ class Board
     @board.flatten.find { |piece| piece.is_a?(King) && piece.color == color }
     # return [] if king_piece.nil?
     # king_piece.position
+  end
+
+  # i admit this is ever so slightly wrong, when rook moves and comes back to original position, and again
+  #  moves and then move is undoed it gains castling priveledge! sed i could maybe check thru all logs to see rook moves or i could make double
+  #  revoke castling priveledge, or keep previous board changes cache (which wouldnt work for multiple undos!) but i think that would be a bit too much
+  #  aka i am lazy!
+  def revive_board_config(log)
+    starting_piece = @board[log[1][0]][log[1][1]]
+    @board[log[1][0]][log[1][1]] = log[2]
+    @board[log[1][0]][log[1][1]].position = log[1]
+    @board[log[0][0]][log[0][1]] = starting_piece
+    @board[log[0][0]][log[0][1]].position = log[0]
+    if log[2].is_a?(King) && (log[0][1] - log[1][1]).abs == (2)
+      log[2].give_castling_privilege
+      i = log[2].color == 'W' ? 7 : 0
+      if log[0][1] > log[1][1]
+        move_piece([i, 3], [i, 0])
+      else
+        move_piece([i, 5], [i, 7])
+      end
+    end
+    puts @board[log[0][0]][log[0][1]]
+
+    if log[2].is_a?(Rook)
+      i = log[2].color == 'W' ? 7 : 0
+      if [[i, 0], [i, 7]].include?(log[0])
+        log[2].give_castling_privilege
+        render_board
+        puts 'above is key'
+      end
+    end
+
+    @board # Always return @board
   end
 
   def display_possible_moves(moves)

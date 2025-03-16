@@ -498,26 +498,26 @@ class MoveChecker
   # end
 end
 
-puts '====================='
-puts 'castling'
-board = Board.new
-ok = board.instance_variable_get(:@board)
-# checker = MoveChecker.new(boardo, ok[1][4])
-# puts checker.real_possible_moves.inspect
-# puts checker.pinned
-board.move_piece([7, 5], [5, 5])
-board.move_piece([7, 6], [5, 6])
-board.move_piece([7, 1], [5, 1])
-board.move_piece([7, 2], [5, 2])
+# puts '====================='
+# puts 'castling'
+# board = Board.new
+# ok = board.instance_variable_get(:@board)
+# # checker = MoveChecker.new(boardo, ok[1][4])
+# # puts checker.real_possible_moves.inspect
+# # puts checker.pinned
+# board.move_piece([7, 5], [5, 5])
+# board.move_piece([7, 6], [5, 6])
+# board.move_piece([7, 1], [5, 1])
+# board.move_piece([7, 2], [5, 2])
 
-board.move_piece([7, 3], [5, 3])
-board.move_piece([0, 1], [6, 3])
-board.render_board
-checker2 = MoveChecker.new(board, ok[7][4])
-# puts ok[0][0].class
-puts checker2.real_possible_moves('W').inspect
+# board.move_piece([7, 3], [5, 3])
+# board.move_piece([0, 1], [6, 3])
 # board.render_board
-puts '====================='
+# checker2 = MoveChecker.new(board, ok[7][4])
+# # puts ok[0][0].class
+# puts checker2.real_possible_moves('W').inspect
+# # board.render_board
+# puts '====================='
 
 # puts '====================='
 # puts 'BUG'

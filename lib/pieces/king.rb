@@ -9,6 +9,10 @@ class King < Piece
     # @castling_privilege_left = true
   end
 
+  def give_castling_privilege
+    @castling_privilege = true
+  end
+
   def revoke_castling_privilege
     @castling_privilege = false
   end
