@@ -1,5 +1,5 @@
 # here game will only be played and cached not saved or loaded or anything else there is record class for that!
-
+# changes of every move will be stored in @cache and can be undone by undo method of board which will reaturn the board of the previous state!
 require_relative 'player'
 require_relative 'board'
 require_relative 'move_checker'
@@ -9,7 +9,7 @@ class Game
     @players = []
     @grid = @boardo.instance_variable_get(:@board)
     @options = []
-    @cache = []
+    @cache = [] # format -> [start_cord, end_cord, previous_piece_on_end_cord, castling]
   end
 
   def add_player(player)
@@ -21,6 +21,7 @@ class Game
       break if check_mate
 
       @players.each do |player|
+        puts @cache.inspect
         base_cord = nil
         target_cord = nil
 
@@ -34,10 +35,9 @@ class Game
             puts 'Reselecting piece...'
             next
           end
-
-          break if @boardo.move_piece(base_cord, target_cord) # Only break if move is successful
-
-          puts 'Invalid move, please try again.'
+          cache_adder(base_cord, target_cord)
+          @boardo.move_piece(base_cord, target_cord)
+          break
         end
       end
 
@@ -48,6 +48,10 @@ class Game
       @boardo.render_board
       break
     end
+  end
+
+  def cache_adder(start_cord, end_cord)
+    @cache << [start_cord, end_cord, @grid[end_cord[0]][end_cord[1]], (start_cord[1] - end_cord[1].abs == 2)]
   end
 
   def ask_base(player)
@@ -80,7 +84,7 @@ class Game
       option_cmd = option_handler(target_cord)
       puts option_cmd.inspect
       return option_cmd unless option_cmd == false
-      break if @options.include?(target_cord)
+      return target_cord if @options.include?(target_cord)
 
       puts 'Invalid move. Please try again.'
     end
@@ -131,7 +135,7 @@ end
 # game.play
 
 puts '=========================================='
-puts 'Direct play'
+# puts 'Direct play'
 board = Board.new
 board.move_piece([7, 5], [5, 5])
 board.move_piece([7, 6], [5, 6])

@@ -17,7 +17,7 @@ class Board
   def populate_board
     (0..7).each do |row|
       (0..7).each do |col|
-        @board[row][col] = Nullpiece.new(nil, self, [row, col])
+        @board[row][col] = Nullpiece.new(nil, [row, col])
       end
     end
     # Adding only standard right now.
@@ -32,7 +32,7 @@ class Board
     pieces.each_value do |(klass, positions)|
       positions.each do |pos|
         color = pos[0] < 2 ? 'B' : 'W'
-        @board[pos[0]][pos[1]] = klass.new(color, self, [pos[0], pos[1]])
+        @board[pos[0]][pos[1]] = klass.new(color, [pos[0], pos[1]])
       end
     end
   end
@@ -60,7 +60,7 @@ class Board
     end
     rook = @board[rook_start_pos[0]][rook_start_pos[1]]
     @board[rook_end_pos[0]][rook_end_pos[1]] = rook
-    @board[rook_start_pos[0]][rook_start_pos[1]] = Nullpiece.new(nil, self, rook_start_pos)
+    @board[rook_start_pos[0]][rook_start_pos[1]] = Nullpiece.new(nil, rook_start_pos)
     rook.position = rook_end_pos
   end
 
@@ -73,7 +73,7 @@ class Board
     end
     rook_move_castle(piece.color, end_pos) if (end_pos[1] - start_pos[1]).abs == 2 and piece.is_a?(King)
     @board[end_pos[0]][end_pos[1]] = piece
-    @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, self, start_pos)
+    @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, start_pos)
     piece.position = end_pos
   end
 

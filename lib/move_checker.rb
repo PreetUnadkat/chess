@@ -166,7 +166,7 @@ class MoveChecker
   # same code as check but after removing the selected piece ie making grid with no selected piece!
   def pinned
     selected_piece_sq = @grid[@cord[0]][@cord[1]]
-    @grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @boardo, @cord)
+    @grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @cord)
 
     # dup_grid = @grid.map(&:dup)
     # dup_grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @boardo, @cord)

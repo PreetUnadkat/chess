@@ -17,13 +17,13 @@
 # Private Methods:
 #   move_dirs - Raises NotImplementedError. Should be implemented by subclasses to return the directions the piece can move.
 class Piece
-  attr_reader :color, :board
+  attr_reader :color
   attr_accessor :position
 
   # postion in [x, y] format
-  def initialize(color, board, position)
+  def initialize(color, position)
     @color = color
-    @board = board
+    # @board = board
     @position = position
   end
 

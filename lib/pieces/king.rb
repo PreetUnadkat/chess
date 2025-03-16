@@ -3,7 +3,7 @@ require_relative '../piece'
 class King < Piece
   attr_reader :castling_privilege
 
-  def initialize(color, board, position)
+  def initialize(color, position)
     super
     @castling_privilege = true
     # @castling_privilege_left = true
