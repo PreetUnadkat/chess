@@ -1,3 +1,5 @@
+# here game will only be played and cached not saved or loaded or anything else there is record class for that!
+
 require_relative 'player'
 require_relative 'board'
 require_relative 'move_checker'
@@ -7,6 +9,7 @@ class Game
     @players = []
     @grid = @boardo.instance_variable_get(:@board)
     @options = []
+    @cache = []
   end
 
   def add_player(player)
@@ -20,43 +23,86 @@ class Game
       @players.each do |player|
         base_cord = nil
         target_cord = nil
-        @boardo.render_board
+
         loop do
-          base_cord = player.ask_base
-          checker = MoveChecker.new(@boardo, @grid[base_cord[0]][base_cord[1]])
-          @options = checker.real_possible_moves(player.color)
-          # puts @options.inspect, 'YOLOLOLO26'
-          break if @options != []
+          @boardo.render_board
+          base_cord = ask_base(player)
 
-          puts 'Invalid move. Please try again.'
+          target_cord = ask_target(player)
+          # puts target_cord.inspect
+          if target_cord == :reselecting # Custom return value to indicate re-selection
+            puts 'Reselecting piece...'
+            next
+          end
+
+          break if @boardo.move_piece(base_cord, target_cord) # Only break if move is successful
+
+          puts 'Invalid move, please try again.'
         end
-        # loser = check_mate
-        # if loser
-        #   puts "The lowser is #{loser}"
-        #   break
-        # end
-        loop do
-          puts 'Options:'
-          # puts
-          # puts @options.inspect, 'YOLOLOLO26'
-          # puts @options[1].inspect, 'YOLOLOLO26'
-          @options.each { |option| puts "#{option[1]}" }
-          @options.each { |option| puts "#{(option[1] + 96 + 1).chr}#{8 - option[0]},'hi'" }
-          @boardo.display_possible_moves(@options)
-
-          target_cord = player.ask_target
-          break if @options.include?(target_cord)
-
-          puts 'Invalid move. Please try again.'
-        end
-        @boardo.move_piece(base_cord, target_cord)
       end
+
       loser = check_mate
       next unless loser
 
-      puts "The lowser is #{loser}"
+      puts "The loser is #{loser}"
       @boardo.render_board
       break
+    end
+  end
+
+  def ask_base(player)
+    base_cord = nil
+    loop do
+      base_cord = player.ask_base
+      break unless option_handler(base_cord) == false
+
+      checker = MoveChecker.new(@boardo, @grid[base_cord[0]][base_cord[1]])
+      @options = checker.real_possible_moves(player.color)
+      # puts @options.inspect, 'YOLOLOLO26'
+      break unless @options == []
+
+      puts 'Invalid move. Please try again.'
+    end
+    base_cord
+  end
+
+  def ask_target(player)
+    loop do
+      puts 'Options:'
+      # puts
+      # puts @options.inspect, 'YOLOLOLO26'
+      # puts @options[1].inspect, 'YOLOLOLO26'
+      # @options.each { |option| puts "#{option[1]}" }
+      @options.each { |option| puts "#{(option[1] + 96 + 1).chr}#{8 - option[0]}" }
+      @boardo.display_possible_moves(@options)
+
+      target_cord = player.ask_target
+      option_cmd = option_handler(target_cord)
+      puts option_cmd.inspect
+      return option_cmd unless option_cmd == false
+      break if @options.include?(target_cord)
+
+      puts 'Invalid move. Please try again.'
+    end
+  end
+
+  def option_handler(keyo)
+    return false unless %w[s l u q re].include?(keyo)
+
+    case keyo
+    when 's'
+      save_game
+      true
+    when 'l'
+      load_game
+      true
+    when 'u'
+      undo
+      true
+    when 'q'
+      exit
+    when 're'
+      :reselecting
     end
   end
 

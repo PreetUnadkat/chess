@@ -302,7 +302,7 @@ class MoveChecker
   def raw_castling
     anso = []
     # puts @piece.castling_privilege
-    puts check, 'castling303'
+    # puts check, 'castling303'
     return anso if check
     return anso unless @piece.castling_privilege
 
@@ -324,7 +324,7 @@ class MoveChecker
 
       anso << [@piece.position[0], (@piece.position[1] + possible_rook[1] + 1) / 2]
     end
-    puts anso.inspect, 'castling325'
+    # puts anso.inspect, 'castling325'
     anso
     # real_castling(anso)
   end
