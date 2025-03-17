@@ -35,6 +35,10 @@ class Piece
     end
   end
 
+  def deep_dup
+    self.class.new(color, position.dup) # Ensure a new instance is created
+  end
+
   def raw_valid_moves
     raise NotImplementedError
   end

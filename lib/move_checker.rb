@@ -229,7 +229,7 @@ class MoveChecker
     anso = []
     # puts raw.inspect, 'selected_king_moves'
     for possible_move in raw
-      new_board = Marshal.load(Marshal.dump(@boardo)) # This marshall dupe is 7000 TIMES SLOWER than normal dupe (which wont work here obv)
+      new_board = @boardo.deep_dup # This marshall dupe is 7000 TIMES SLOWER than normal dupe (which wont work here obv) SOLVED! LOL NICE
       new_board.move_piece(@cord, possible_move)
       # new_board.render_board
 
@@ -272,7 +272,7 @@ class MoveChecker
       in_betweens = [move, [move[0], (move[1] + @cord[1]) / 2]] # Intermediate squares
       # puts in_betweens.inspect, 'inbetween'
       in_betweens.each do |in_between|
-        new_board = Marshal.load(Marshal.dump(@boardo)) # Deep copy of board
+        new_board = @boardo.deep_dup # Deep copy of board
         new_grid = new_board.instance_variable_get(:@board)
         # puts 'heehee', @cord.inspect, in_between.inspect, 'castling', 'hello!'
         if in_between[1] > @cord[1] # King side castling
@@ -488,15 +488,14 @@ class MoveChecker
     # puts possible_moves.inspect, '378'
     possible_moves
   end
-
-  # Is the piece pinned and if yes along which direction?
-  # def pinned
-  #   dup_grid = @grid.map(&:dup)
-  #   dup_grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @boardo, @cord)
-  #   king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
-  #   puts king_cord.inspect
-  # end
 end
+# Is the piece pinned and if yes along which direction?
+# def pinned
+#   dup_grid = @grid.map(&:dup)
+#   dup_grid[@cord[0]][@cord[1]] = Nullpiece.new(nil, @boardo, @cord)
+#   king_cord = @grid.flatten.find { |piece| piece.is_a?(King) && piece.color == @piece.color }.position
+#   puts king_cord.inspect
+# end
 
 # puts '====================='
 # puts 'castling'

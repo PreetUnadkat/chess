@@ -50,6 +50,14 @@ class Board
     end
   end
 
+  def deep_dup
+    new_board = Board.new
+    new_board.board = @board.map do |row|
+      row.map { |piece| piece.dup } # Ensure each piece is properly duplicated
+    end
+    new_board
+  end
+
   def rook_move_castle(color, end_pos)
     king = find_king(color)
     i = color == 'W' ? 1 : -1
@@ -67,13 +75,14 @@ class Board
   end
 
   def move_piece(start_pos, end_pos)
+    # puts start_pos.inspect, end_pos.inspect
     piece = @board[start_pos[0]][start_pos[1]]
     piece.revoke_castling_privilege if piece.is_a?(King)
     piece.revoke_castling_privilege if piece.is_a?(Rook) && [[0, 0], [7, 0], [0, 7], [7, 7]].include?(start_pos)
     if piece.is_a?(Pawn) && ((piece.color == 'W' && end_pos[0] == 0) or (piece.color == 'B' && end_pos[0] == 7))
       piece = piece.promote
     end
-    rook_move_castle(piece.color, end_pos) if (end_pos[1] - start_pos[1]).abs == 2 and piece.is_a?(King)
+    rook_move_castle(piece.color, end_pos) if (end_pos[1] - start_pos[1]).abs == 2 && piece.is_a?(King)
     @board[end_pos[0]][end_pos[1]] = piece
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, start_pos)
     piece.position = end_pos
@@ -112,8 +121,7 @@ class Board
     # puts @board[log[0][0]][log[0][1]]
 
     starting_piece.give_castling_privilege if starting_piece.is_a?(Rook)
-
-    @board # Always return @board
+    @board
   end
 
   def display_possible_moves(moves)
@@ -138,7 +146,8 @@ end
 
 # board = Board.new
 # board.render_board
+# new = board.deep_dup
 # board.move_piece([1, 0], [0, 0])
-
+# new.render_board
 # board.render_board
 # print board.instance_variable_get(:@board)[0][0]

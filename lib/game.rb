@@ -9,7 +9,7 @@ class Game
     @players = []
     @grid = @boardo.instance_variable_get(:@board)
     @options = []
-    @cache = [] # format -> [start_cord, end_cord, previous_piece_on_end_cord]
+    @cache = [] # format -> [start_cord, end_cord]
     @boardso = [0, 1]
   end
 
@@ -26,7 +26,6 @@ class Game
         target_cord = nil
 
         loop do
-          # puts @grid
           @boardo.render_board
 
           @options = []
@@ -38,7 +37,6 @@ class Game
           end
 
           target_cord = ask_targeto(player)
-          # puts target_cord.inspect
           if target_cord == :reselecting # Custom return value to indicate re-selection
             puts 'Reselecting piece...'
             next
@@ -68,7 +66,7 @@ class Game
 
   def cache_remover
     last_log = @cache.pop
-    puts last_log.inspect
+    # puts last_log.inspect
     result = @boardo.revive_board_config(last_log)
     puts 'Warning: revive_board_config returned nil!' if result.nil?
     @boardo.board = result
@@ -76,17 +74,11 @@ class Game
 
   def ask_baso(player)
     base_cord = nil
-    # puts 'again66'
     loop do
       base_cord = player.ask_base
       option_cmd = option_handler(base_cord)
-      # puts option_cmd.inspect
       return option_cmd unless option_cmd == false
 
-      # puts base_cord.inspect, 'YOLOLOLO82'
-      # puts '79 thats good ig'
-      # puts @grid, 'YOLOLOLO84'
-      # puts @boardo.instance_variable_get(@board) == @grid, 'bingo84'
       checker = MoveChecker.new(@boardo, @boardo.board[base_cord[0]][base_cord[1]])
       @options = checker.real_possible_moves(player.color)
       # puts @options.inspect, 'YOLOLOL85'
