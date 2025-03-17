@@ -3,18 +3,20 @@ require_relative '../piece'
 class King < Piece
   attr_reader :castling_privilege
 
+  # Only will be able to castle if @castling_priveledege == 0 that is havent moved a single time
+
   def initialize(color, position)
     super
-    @castling_privilege = true
+    @castling_privilege = 0
     # @castling_privilege_left = true
   end
 
   def give_castling_privilege
-    @castling_privilege = true
+    @castling_privilege -= 1 if @castling_privilege > 0
   end
 
   def revoke_castling_privilege
-    @castling_privilege = false
+    @castling_privilege += 1
   end
 
   def symbol

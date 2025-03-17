@@ -95,25 +95,23 @@ class Board
     @board[log[1][0]][log[1][1]].position = log[1]
     @board[log[0][0]][log[0][1]] = starting_piece
     @board[log[0][0]][log[0][1]].position = log[0]
-    if log[2].is_a?(King) && (log[0][1] - log[1][1]).abs == (2)
-      log[2].give_castling_privilege
-      i = log[2].color == 'W' ? 7 : 0
-      if log[0][1] > log[1][1]
-        move_piece([i, 3], [i, 0])
-      else
-        move_piece([i, 5], [i, 7])
-      end
-    end
-    puts @board[log[0][0]][log[0][1]]
 
-    if log[2].is_a?(Rook)
-      i = log[2].color == 'W' ? 7 : 0
-      if [[i, 0], [i, 7]].include?(log[0])
-        log[2].give_castling_privilege
-        render_board
-        puts 'above is key'
+    if starting_piece.is_a?(King)
+      starting_piece.give_castling_privilege
+      if (log[0][1] - log[1][1]).abs == (2)
+        i = starting_piece.color == 'W' ? 7 : 0
+        if log[0][1] > log[1][1]
+          move_piece([i, 3], [i, 0])
+          @board[i][0].give_castling_privilege
+        else
+          move_piece([i, 5], [i, 7])
+          @board[i][7].give_castling_privilege
+        end
       end
     end
+    # puts @board[log[0][0]][log[0][1]]
+
+    starting_piece.give_castling_privilege if starting_piece.is_a?(Rook)
 
     @board # Always return @board
   end

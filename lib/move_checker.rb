@@ -304,14 +304,14 @@ class MoveChecker
     # puts @piece.castling_privilege
     # puts check, 'castling303'
     return anso if check
-    return anso unless @piece.castling_privilege
+    return anso if @piece.castling_privilege != 0
 
     possible_rooks = [[0, 0], [0, 7], [7, 7], [7, 0]] # Fixed bracket issue
     possible_rooks.each do |possible_rook|
       target_rook_piece = @grid[possible_rook[0]][possible_rook[1]]
       next unless target_rook_piece.is_a?(Rook)
 
-      cond2 = target_rook_piece.castling_privilege
+      cond2 = target_rook_piece.castling_privilege == 0
       cond3 = MoveChecker.new(@boardo,
                               target_rook_piece).raw_possible_moves.include?([@piece.position[0],
                                                                               @piece.position[1] + 1])
