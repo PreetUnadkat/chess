@@ -82,6 +82,9 @@ class Board
     if piece.is_a?(Pawn) && ((piece.color == 'W' && end_pos[0] == 0) or (piece.color == 'B' && end_pos[0] == 7))
       piece = piece.promote
     end
+    # render_board if (end_pos[1] - start_pos[1]).abs == 2 && piece.is_a?(King)
+
+    # puts [end_pos, start_pos].inspect if (end_pos[1] - start_pos[1]).abs == 2 && piece.is_a?(King)
     rook_move_castle(piece.color, end_pos) if (end_pos[1] - start_pos[1]).abs == 2 && piece.is_a?(King)
     @board[end_pos[0]][end_pos[1]] = piece
     @board[start_pos[0]][start_pos[1]] = Nullpiece.new(nil, start_pos)

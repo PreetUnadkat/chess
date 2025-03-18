@@ -160,7 +160,7 @@ board.move_piece([7, 1], [5, 1])
 board.move_piece([7, 2], [5, 2])
 
 board.move_piece([7, 3], [5, 3])
-board.move_piece([0, 1], [6, 3])
+board.move_piece([0, 1], [7, 5])
 game = Game.new(board)
 game.add_player(Player.new('Alice', 'W'))
 game.add_player(Player.new('Bob', 'B'))
